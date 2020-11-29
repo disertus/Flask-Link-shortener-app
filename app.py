@@ -5,8 +5,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello_world():
-    return 'Hello World!'
-    pass
+    return render_template('home.html', name='Roman') #passing a variable to the html placeholder, allows to present dynamic content for different users
 
 @app.route('/hi')
 def hi_there():
@@ -14,4 +13,4 @@ def hi_there():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=1)
