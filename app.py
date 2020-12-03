@@ -6,6 +6,7 @@ from flask import (
     redirect,
     url_for,
 )  # allows to return html templates instead of manually generated layouts
+from werkzeug.utils import secure_filename
 import json
 import os.path
 
@@ -41,7 +42,14 @@ def your_url():
             flash('This shortname has already been taken. Please select another one')
             return redirect(url_for('hello_world'))
 
-        urls[request.form["code"]] = {"url": request.form["url"]}
+        if 'url' in request.form.keys():
+            urls[request.form["code"]] = {"url": request.form["url"]}
+        else:
+            f = request.files['file']
+            full_name = request.form['code'] + secure_filename(f.filename)
+            f.save('/media/disertus/3CFE4AD4FE4A865C/Programming-Materials/Python-Programs/Flask-Link-shortener-app/' + full_name)
+            urls[request.form["code"]] = {"file": full_name}
+
         with open('urls.json', 'w') as url_file:
             json.dump(urls, url_file)
         # args = dictionary for parameters that can be passed. here it represents the value passed to 'code' inside the home.html form
@@ -54,6 +62,15 @@ def your_url():
 
         # redirects to the home page as above, but instead of hardcoded url uses the value of the function 'home'
         return redirect(url_for("hello_world"))
+
+@app.route('/<string:code>')
+def redirect_to_url(code):
+    if os.path.exists('urls.json'):
+        with open('urls.json') as urls_file:
+            urls = json.load(urls_file)
+            if code in urls.keys():
+                if 'url' in urls[code].keys():
+                    return redirect(urls[code]['url'])
 
 
 if __name__ == "__main__":
