@@ -1,9 +1,11 @@
 from flask import (
     Flask,
+    abort,
     flash,
     render_template,
     request,
     redirect,
+    session,
     url_for,
 )  # allows to return html templates instead of manually generated layouts
 from werkzeug.utils import secure_filename
@@ -71,7 +73,11 @@ def redirect_to_url(code):
             if code in urls.keys():
                 if 'url' in urls[code].keys():
                     return redirect(urls[code]['url'])
+    return abort(404)
 
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('page_not_found.html'), 404
 
 if __name__ == "__main__":
     app.run(debug=1)
